@@ -1,0 +1,76 @@
+Domain
+-> Nesta pasta iremos criar as classes que deverão ser persistidas no banco de dados por meio de um ORM.
+   No .NET usamos o EntityFramework
+
+Classe
+-> Representação de um "objeto" do mundo real no ambiente da Orientação Objeto
+
+Enumerador
+-> Cria uma lista de Opção, restringindo o usuário nas opção construídas no enumerador
+
+EntityFramework (ORM - Object Relational Model)
+-> É conhecido pela abreviação EF
+-> EF é o ORM da Microsoft
+-> O EF é responsável pela construção dos comandos:
+   -> CREATE TABLE...
+   -> ALTER TABLE...
+   -> DROP TABLE...
+   -> INSERT INTO...
+   -> UPDATE...
+   -> DELETE...
+   -> CREATE INDEX...
+   -> Para esse processo aplicamos o conceito de Migrations
+-> O EF é fundamento em um CONTEXT (CONTEXTO DE DADOS). Um contexto é a representação do seu banco de dados em 
+   memória. Essa representação é mais a nível de estrutura e não a nível de dados. Os dados serão carregados
+   conforme a demanda
+-> O EF não vem instalado é preciso instala os seguintes pacotes:
+   -> "Microsoft.EntityFrameworkCore" - pacote principal do EF
+   -> "Microsoft.EntityFrameworkCore.Relational" - pacote responsável por permitir informar o nome da tabela que
+       será gerada no banco de dados. Isso será feito no arquivo de "Configuration"
+   -> Pomelo.EntityFrameworkCore.MySql - pacote responsável por fazer a conexão do EF com o banco de dados MySQL.      
+      Esses pacotes são chamados de Providers
+      Exemplo de outros providers:
+      -> Microsoft.EntityFrameworkCore.SqlServer - Conexão com o SQL Server
+      -> Npgsql.EntityFrameworkCore.PostgreSQL - Conexão com PostgreSQL
+      -> Oracle.EntityFrameworkCore - Conexão com o Oracle
+   -> Microsoft.EntityFrameworkCore.Tools - pacote responsável por adicionar os comandos para geração
+      das migrations. As mais usadas por nós nos curso será:
+      -> Add-Migration [nome-da-migração]
+      -> Update-Database      
+   -> A instalação ocorre por meio do Nuget
+-> Criar a minha classe de Contexto, será uma classe comum, porém irá herdar a classe DbContext do EF
+   -> o DbSet<...> é responsável por indicar ao EF que essa entidade será mapeada para o banco de dados
+   -> Configurar as instruções de como a entidade se dará no banco de dados (Arquivos "...Configuration.cs)
+      -> Para isso o método "OnModelCreating" deverá ser sobreescrito (override)
+         -> Exemplo: modelBuilder.ApplyConfiguration(new CursoConfiguration());
+   -> Conexão com o banco de dados (ConnectionString)
+      -> Para isso o método "OnConfiguring" deverá ser sobreescrito (override)
+      -> optionsBuilder.UseMySql -> Estamos informando que o EF irá utilizar o MySQL
+-> Mapenado a classe "Curso" para o Banco de Dados
+   -> Criar uma arquivo "CursoConfiguration.cs"
+      -> Criar o mapeamento de cada propriedade. Exemplo: "CursoConfiguration.cs"
+         public class CursoConfiguration : IEntityTypeConfiguration<Curso>
+         {
+             public void Configure(EntityTypeBuilder<Curso> builder)
+             {
+                 builder.HasKey(p => p.Id);
+
+                 builder.Property(p => p.Nome)
+                     .HasMaxLength(100)
+                     .IsRequired();
+ 
+                 builder.Property(p => p.Periodo)
+                     .IsRequired();
+
+                 builder.ToTable("TB_Curso");
+
+                 //FluentAPI
+             }
+         }
+      -> Toda classe de configuração deverá herdar a interface "IEntityTypeConfiguration"
+-> Construir as Migrações
+   -> Add-Migrarion [nome-da-migration] (o nome será informado por você desenvolvedor. Usar nomes sugestivos com base no que a migration irá fazer no banco de dados)
+   -> Update-Database - Irá executar a migrations no banco de dados. Neste momento será gerado os comandos DDL de acordo com que a migrations irá fazer
+
+
+
